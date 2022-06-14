@@ -44,5 +44,5 @@ jobs:
         id: slack
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          text: Deploy started for ${{ steps.vars.outputs.sha_short }}
+          text: Deploy started for ${{ github.sha }}
           color: good # Slack already-supported color
