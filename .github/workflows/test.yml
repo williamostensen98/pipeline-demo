@@ -35,7 +35,12 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cat test.txt
+          STR=$(cat test.txt)
+          SUB='Linux'
+          if [[ "$STR" == *"$SUB"* ]]; then
+            echo "Successfully ran test. The file looks okay."
+            exit 0
+          fi
           exit 1
       - uses: someimportantcompany/github-actions-slack-message@v1
         id: slack
