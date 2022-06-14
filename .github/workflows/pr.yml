@@ -1,19 +1,14 @@
 name: Pull request
-on: [pull_request]
+on:
+  pull_request:
+    branches: [ "master" ]
 jobs:
   test:
     name: Test everything is looking good.
     runs-on: ubuntu-20.04
     steps:
-      - name: Run a multi-line script
-          run: |
-            STR=$(cat test.txt)
-            SUB='Linux'
-            if [[ "$STR" == *"$SUB"* ]]; then
-              echo "Successfully ran test. The file looks okay."
-              exit 0
-            fi
-            exit 1
+      - name: Run a one-line script
+        run: echo Hello, world!
   report:
     needs:
     - test
@@ -25,6 +20,6 @@ jobs:
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           text: "PR ready! Please review."
-          color: good # Slack already-supported color
+          color: info # Slack already-supported color
 
 
