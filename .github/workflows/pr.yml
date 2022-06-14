@@ -1,0 +1,30 @@
+name: Pull request
+on: [pull_request]
+jobs:
+  test:
+    name: Test everything is looking good.
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Run a multi-line script
+          run: |
+            STR=$(cat test.txt)
+            SUB='Linux'
+            if [[ "$STR" == *"$SUB"* ]]; then
+              echo "Successfully ran test. The file looks okay."
+              exit 0
+            fi
+            exit 1
+  report:
+    needs:
+    - test
+    name: Report that there is a PR ready
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: someimportantcompany/github-actions-slack-message@v1
+        id: slack
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          text: "PR ready! Please review."
+          color: good # Slack already-supported color
+
+
