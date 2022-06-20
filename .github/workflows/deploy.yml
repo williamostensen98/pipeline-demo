@@ -4,42 +4,59 @@ name: Deploy!!
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
+  # Triggers the workflow on push events, but only on "master" branch
   push:
     branches: [ "master" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This workflow contains a single job called "test"
+  test:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3  # Checks-out your repository, so your job can access it
       - name: Declare some variables
+        #Example code to show "meta commands"
+        # that can be used to pass variable info to be used later
         id: vars
         shell: bash
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)" #Gets the short sha from the commit
       
       # Runs a set of commands using the runners shell
       - name: Run some tests as multiline bash
+      # This is just and example to show that the file test.txt
+      # is available here in the pipeline. You can
+      # of course run way more complicated test suites.
+      # (The code verifies that test.txt contains the substring assigned to the SUB variable,
+      # and fails the test otherwise)
         run: |
-          STR=$(cat test.txt)
-          SUB='Linux'
+          STR=$(cat editme.txt)
+          SUB='Baloo'
           if [[ "$STR" == *"$SUB"* ]]; then
-            echo "Successfully ran test. The file looks okay."
+            echo "Successfully ran test for {{vars.sha_short}}. The file looks okay."
             exit 0
           fi
           exit 1
-      - uses: someimportantcompany/github-actions-slack-message@v1
-        id: slack
-        with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          text: "Deploy started for ${{ github.sha }}. Lets go! :boom::ship::boom:"
-          color: good # Slack already-supported color
+ # ----- DO NOT UNCOMMENT THIS, ONLY FOR EXAMPLE -----
+ #       NB: Note that this also requires a Dockerfile etc which this repository is missing.
+ #       run: |
+ #       docker version
+ #       docker build \
+ #         --build-arg 'GIT_COMMIT=${{ github.sha }}' \
+ #         -t my-cool-app:latest \
+ #         .
+ #       echo "Built image (git commit: ${{ github.sha }} tag: my-cool-app:latest)"
+ #     - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf #Login to azure from pipeline
+ #       with:
+ #         client-id: ${{ secrets.client-id }}
+ #         tenant-id: ${{ secrets.tenant-id }}
+ #         subscription-id: ${{ secrets.subscription-id }}
+ #     - run: |
+ #         image_url="my-registry.azure.containerregistry.com/my-cool-app"
+ #         docker tag ${{ my-cool-app }}:latest ${image_url}:${{ github.sha }}
+ #         az acr login --name my-registry.azure.containerregistry.com
+ #         docker push ${image_url}:${{ github.sha }}
+ # ----- EXAMPLE DOCKER PUSH ENDS HERE ------

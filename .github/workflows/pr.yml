@@ -1,6 +1,6 @@
 name: Pull request
 on:
-  pull_request:
+  pull_request: #Only trigger this workflow on pull requests
     branches: [ "master" ]
 jobs:
   test:
